@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <style>
+      * {
+      }
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script
+      async
+      src="https://cdn.jsdelivr.net/npm/es-module-shims@1.6.2/dist/es-module-shims.min.js"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.module.js",
+          "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.149.0/examples/jsm/",
+          "./setup": "./setup.js",
+          "three-xr-controller": "../dist/esm/index.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { setupScene, createBridge } from "./setup";
+      import { DefaultXrControllerSet } from "three-xr-controller";
+
+      function createWorldObjects(
+        scene,
+        collisionObjects,
+        interactableObjects,
+        teleportTargetObjects
+      ) {
+        const cube = new THREE.Mesh(
+          new THREE.BoxGeometry(1, 1, 1),
+          new THREE.MeshNormalMaterial()
+        );
+        cube.name = "cube";
+        cube.position.set(0, 0.5, -5);
+        cube.rotation.y = 1;
+        window.cube = cube;
+        scene.add(cube);
+        interactableObjects.push(cube);
+
+        {
+          const o = createBridge();
+          o.rotateY(180 * (Math.PI / 180));
+          o.position.set(2, 0, -1.5);
+
+          scene.add(o);
+          teleportTargetObjects.push(o);
+        }
+        {
+          const wall = new THREE.Mesh(
+            new THREE.PlaneGeometry(10, 3, 1, 1),
+            new THREE.MeshLambertMaterial({
+              color: 0x5e5e5e,
+              side: THREE.DoubleSide,
+            })
+          );
+          wall.name = "wall-r";
+          wall.position.set(-2, 0.5, 0);
+          wall.rotation.y = Math.PI / 2;
+          scene.add(wall);
+          collisionObjects.push(wall);
+        }
+        {
+          const wall = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 3, 1, 1),
+            new THREE.MeshLambertMaterial({
+              color: 0x5e5e5e,
+              side: THREE.DoubleSide,
+            })
+          );
+          wall.name = "wall";
+          wall.position.set(-0.5, 0.5, -3);
+          scene.add(wall);
+          collisionObjects.push(wall);
+        }
+        return { cube };
+      }
+      let xrControllerSet;
+      let collisionObjects = [];
+      let interactableObjects = [];
+      let teleportTargetObjects = [];
+
+      const main = () => {
+        let ctx;
+        ctx = setupScene((dt) => {
+          xrControllerSet?.tick(dt);
+        }, true);
+        const { scene, renderer, camera, cameraContainer } = ctx;
+        const { cube } = createWorldObjects(
+          scene,
+          collisionObjects,
+          interactableObjects,
+          teleportTargetObjects
+        );
+        teleportTargetObjects.push(ctx.ground);
+
+        const person = new THREE.Object3D();
+        person.name = "person";
+        person.add(cameraContainer);
+        person.position.z = 2;
+        scene.add(person);
+
+        xrControllerSet = new DefaultXrControllerSet(
+          renderer,
+          camera,
+          scene,
+          cameraContainer,
+          person,
+          person,
+          {
+            getCollisionObjects: () => collisionObjects,
+            getInteractableObjects: () => interactableObjects,
+            getTeleportTargetObjects: () => teleportTargetObjects,
+            onCursorHover: (el, _pt) => {
+              if (el === cube) {
+                cube.scale.set(1.1, 1.1, 1.1);
+              }
+            },
+            onCursorLeave: (el, _pt) => {
+              if (el === cube) {
+                cube.scale.set(1, 1, 1);
+              }
+            },
+            onSelectDown: (el) => {
+              if (el === cube) {
+                cube.rotateY(THREE.MathUtils.degToRad(45));
+              }
+            },
+            onSelectUp: (el) => {
+              if (el === cube) {
+                cube.rotateZ(THREE.MathUtils.degToRad(45));
+              }
+            },
+          }
+        );
+        //xrControllerSet.enabled = renderer.xr.isPresenting;
+        xrControllerSet.setNonVRMode(!renderer.xr.isPresenting);
+        window._debugController = xrControllerSet;
+        renderer.xr.addEventListener("sessionstart", async () => {
+          const firstPersonOnlyLayer = 9;
+          const thirdPersonOnlyLayer = 10;
+          const camera = renderer.xr.getCamera();
+          while (Math.round(renderer.xr.getCamera().position.y * 10) === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+
+          // Laser pointer is displayed only on the first-person camera
+          for (const c of [camera, ...(camera.cameras || [])]) {
+            c.layers.enable(firstPersonOnlyLayer);
+            c.layers.disable(thirdPersonOnlyLayer);
+          }
+
+          //xrControllerSet.enabled = true;
+          xrControllerSet.setNonVRMode(false);
+        });
+        renderer.xr.addEventListener("sessionend", () => {
+          //xrControllerSet.enabled = false;
+          xrControllerSet.setNonVRMode(true);
+        });
+      };
+      main();
+    </script>
+  </head>
+  <body></body>
+</html>
