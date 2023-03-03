@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [three-xr-controller](./three-xr-controller.md) |  |
+|  [@verseengine/three-xr-controller](./three-xr-controller.md) |  |
 
