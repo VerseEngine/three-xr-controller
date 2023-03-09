@@ -115,17 +115,9 @@ export class SnapTurnController {
    * Execute SnapTurn directly
    */
   snapTurn(direction: -1 | 1) {
-    const sin = Math.sin(this._turnAmount * direction);
-    const cos = Math.cos(this._turnAmount * direction);
-    const x = 0;
-    const z = 1;
-    const dir = _tmps.vec.set(x * cos - z * sin, 0, x * sin + z * cos);
-
-    const targetQuat = this._target.getWorldQuaternion(_tmps.quat);
-    this._target
-      .getWorldPosition(_tmps.vec1)
-      .add(dir.applyQuaternion(targetQuat).multiplyScalar(1));
-    this._target.lookAt(_tmps.vec1);
+    this._target.rotation.y =
+      (this._target.rotation.y - this._turnAmount * direction) %
+      THREE.MathUtils.degToRad(360);
     this._onTurn?.();
   }
   /**
