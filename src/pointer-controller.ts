@@ -423,7 +423,7 @@ export class PointerController {
       this._onMouseMove
     );
     this._renderer.domElement.removeEventListener("mouseup", this._onUp);
-    this._renderer.domElement.removeEventListener("mouseup", this._onDown);
+    this._renderer.domElement.removeEventListener("mousedown", this._onDown);
   }
   private _onSessionStart() {
     this._xr?.getSession()?.addEventListener("selectstart", this._onDown);
