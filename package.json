@@ -2,6 +2,8 @@
   "name": "@verseengine/three-xr-controller",
   "version": "1.0.0",
   "description": "VR controller",
+  "author": "Appland, Inc",
+  "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
