@@ -12,12 +12,14 @@ class Tmps {
   quat: THREE.Quaternion;
   euler: THREE.Euler;
   mtx: THREE.Matrix4;
+  mtx3: THREE.Matrix3;
   obs: THREE.Object3D[] = [];
   iss: THREE.Intersection<THREE.Object3D>[] = [];
   constructor() {
     this.vec = new THREE.Vector3();
     this.vec1 = new THREE.Vector3();
     this.mtx = new THREE.Matrix4();
+    this.mtx3 = new THREE.Matrix3();
     this.quat = new THREE.Quaternion();
     this.euler = new THREE.Euler();
     this.iss = [];
@@ -399,14 +401,34 @@ export class PointerController {
         if (hitI.distance < hitT.distance) {
           return [hitI, false, true];
         } else {
-          return [hitT, true, false];
+          if (this._canTeleport(hitT)) {
+            return [hitT, true, false];
+          } else {
+            return [undefined, false, false];
+          }
         }
       }
       return [hitI, false, true];
     } else if (hitT) {
-      return [hitT, true, false];
+      if (this._canTeleport(hitT)) {
+        return [hitT, true, false];
+      } else {
+        return [undefined, false, false];
+      }
     }
     return [hitC, false, false];
+  }
+  private _canTeleport(intersection: THREE.Intersection<THREE.Object3D>) {
+    if (!intersection.face) {
+      return false;
+    }
+    const matrix = _tmps.mtx3.getNormalMatrix(intersection.object.matrixWorld);
+    const normal = _tmps.vec1
+      .copy(intersection.face.normal)
+      .applyMatrix3(matrix)
+      .normalize();
+    const angle = _tmps.vec.set(0, 1, 0).angleTo(normal);
+    return angle <= THREE.MathUtils.degToRad(45);
   }
   private _addEventListeners() {
     this._xr?.addEventListener("sessionstart", this._onSessionStart);

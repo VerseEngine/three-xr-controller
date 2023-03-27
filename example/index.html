@@ -84,6 +84,27 @@
           scene.add(wall);
           collisionObjects.push(wall);
         }
+        {
+          const ground1 = new THREE.Mesh(
+            new THREE.BoxGeometry(5, 0.5, 2),
+            new THREE.MeshStandardMaterial({
+              side: THREE.DoubleSide,
+              color: 0x9acd32,
+            })
+          );
+          ground1.position.set(5, 0.25, -4);
+          const ground2 = new THREE.Mesh(
+            new THREE.BoxGeometry(5, 0.5, 2),
+            new THREE.MeshStandardMaterial({
+              side: THREE.DoubleSide,
+              color: 0x9acd32,
+            })
+          );
+          ground2.position.set(7, 0.75, -4);
+          scene.add(ground1, ground2);
+          teleportTargetObjects.push(ground1, ground2);
+        }
+
         return { cube };
       }
       let xrControllerSet;
