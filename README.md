@@ -32,7 +32,7 @@ npm install @verseengine/three-xr-controller
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.module.js",
-      "three-xr-controller": "https://cdn.jsdelivr.net/npm/@verseengine/three-xr-controller@1.0.0/dist/esm/index.js"
+      "three-xr-controller": "https://cdn.jsdelivr.net/npm/@verseengine/three-xr-controller@1.0.1/dist/esm/index.js"
     }
   }
 </script>
