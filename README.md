@@ -1,4 +1,4 @@
-# three-xr-controller
+# three-xr-controller &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/VerseEngine/three-xr-controller/blob/main/LICENSE)  [![npm version](https://img.shields.io/npm/v/@verseengine%2Fthree-xr-controller.svg?style=flat)](https://www.npmjs.com/package/@verseengine%2Fthree-xr-controller)  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/VerseEngine/three-xr-controller/pulls)
  
 VR controller.
 
